@@ -1,0 +1,8 @@
+all: cws_alsadrv
+
+cws_alsadrv: cws_alsadrv.c ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c ../synth/cwssynth.h
+	gcc -O2 -Wall -DPYRA -pipe -march=armv7ve+simd -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -mfloat-abi=hard -mthumb -o cws_alsadrv cws_alsadrv.c ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c -I../synth -lasound -lpthread
+
+.PHONY: clean
+clean:
+	rm -f cws_alsadrv

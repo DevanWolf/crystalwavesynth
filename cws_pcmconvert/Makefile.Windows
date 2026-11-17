@@ -1,0 +1,20 @@
+all: cws_pcmconvert.exe
+
+ifeq (x$(CC)y$(MSYSTEM)z, xccyCLANG64z)
+CC = clang
+else ifeq (x$(CC)y$(MSYSTEM)z, xccyCLANGARM64z)
+CC = clang
+else ifeq ($(CC), cc)
+CC = gcc
+endif
+
+cws_pcmconvert.exe: cws_pcmconvert.c midi_loader.c midi_loader.h ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c ../synth/cwssynth.h
+	$(CC) -O2 -Wall -o cws_pcmconvert.exe cws_pcmconvert.c midi_loader.c ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c -I../synth
+
+.PHONY: clean
+clean:
+ifdef MSYSTEM
+	rm -f cws_pcmconvert.exe
+else
+	del cws_pcmconvert.exe
+endif

@@ -1,0 +1,8 @@
+all: cws_alsadrv
+
+cws_alsadrv: cws_alsadrv.c ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c ../synth/cwssynth.h
+	$(PNDSDK)/bin/pandora-gcc -O2 -Wall -DPANDORA -o cws_alsadrv cws_alsadrv.c ../synth/cwssynth.c ../synth/cwssynthx.c ../synth/cwsreverb.c -I../synth -I$(PNDSDK)/usr/include -lasound -lpthread -lrt -L$(PNDSDK)/usr/lib
+
+.PHONY: clean
+clean:
+	rm -f cws_alsadrv

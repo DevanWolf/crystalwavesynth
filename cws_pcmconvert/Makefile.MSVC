@@ -1,0 +1,8 @@
+all: cws_pcmconvert.exe
+
+cws_pcmconvert.exe: cws_pcmconvert.c midi_loader.c midi_loader.h ..\synth\cwssynth.c ..\synth\cwssynthx.c ..\synth\cwsreverb.c ..\synth\cwssynth.h
+	cl /MD /O2 /W3 /nologo /Fecws_pcmconvert.exe cws_pcmconvert.c midi_loader.c ..\synth\cwssynth.c ..\synth\cwssynthx.c ..\synth\cwsreverb.c /I..\synth
+
+.PHONY: clean
+clean:
+	del cws_pcmconvert.exe midi_loader.obj cws_pcmconvert.obj cwssynth.obj cwssynthx.obj cwsreverb.obj
