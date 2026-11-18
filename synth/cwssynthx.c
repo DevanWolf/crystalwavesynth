@@ -201,7 +201,7 @@ static uint32_t output_frequency_div1000;
 static float channel_volume[16] = { 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f };
 static float channel_pan_left[16] = { 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f };
 static float channel_pan_right[16] = { 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f, 0.707f };
-static float channel_expression[16] = { 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f, 0.62f };
+static float channel_expression[16] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 static uint8_t channel_sustain[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static int16_t channel_fine_tuning[16] = { 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000 };
 static int16_t channel_coarse_tuning[16] = { 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000 };
@@ -447,17 +447,26 @@ static void ReleaseSustainedNote(voice_t *voice)
 
 static void ResetAllControllers(uint8_t channel)
 {
+    channel_expression[channel] = 1.0f;
+    channel_sustain[channel] = 0;
+    channel_pitch_bend[channel] = 0;
+    CallFunctionOnChannelVoices(ReleaseSustainedNote, channel);
+    CallFunctionOnChannelVoices(CalculateVoiceVolume, channel);
+    CallFunctionOnChannelVoices(CalculateVoiceFrequency, channel);
+}
+
+static void Reset(uint8_t channel)
+{
     channel_volume[channel] = 0.62f;
     channel_pan_left[channel] = 0.707f;
     channel_pan_right[channel] = 0.707f;
-    channel_expression[channel] = 0.62f;
+    channel_expression[channel] = 1.0f;
     channel_fine_tuning[channel] = 0x2000;
     channel_coarse_tuning[channel] = 0x2000;
     channel_sustain[channel] = 0;
     channel_pitch_bend_sensitivity[channel] = 2;
     channel_pitch_bend[channel] = 0;
-    CallFunctionOnChannelVoices(CalculateVoiceVolume, channel);
-    CallFunctionOnChannelVoices(CalculateVoiceFrequency, channel);
+    CallFunctionOnChannelVoices(ReleaseSustainedNote, channel);
 }
 
 static void RPNChange(const event_t *event)
@@ -512,6 +521,8 @@ static void ControllerChange(const event_t *event)
         case 121: // Reset all controllers
             ResetAllControllers((uint8_t)event->channel);
             break;
+        case 255: // Reset
+            Reset((uint8_t)event->channel);
         default:
             break;
     }
@@ -1023,4 +1034,3 @@ void CCALL CWS_FillOutputBuffer(int16_t *output_buffer, uint32_t length_bytes, u
         }
     }
 }
-

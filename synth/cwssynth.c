@@ -37,7 +37,7 @@ extern event_buffer_t *cws_event_buffer;
 
 
 static uint8_t program_number[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static uint16_t rpn_number[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static uint16_t rpn_number[16] = { 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff, 0x3fff };
 static uint16_t rpn_value[16][3] = {
     {0x100, 0x2000, 0x2000},
     {0x100, 0x2000, 0x2000},
@@ -212,10 +212,13 @@ void CCALL CWS_MidiMessageShort(uint32_t time, uint32_t message)
                     break;
 
                 case 121: // reset all controllers
-                    rpn_value[channel][0] = 0x100;
-                    rpn_value[channel][1] = 0x2000;
-                    rpn_value[channel][2] = 0x2000;
-                    // fallthrough
+                    add_to_buffer(time, 5, channel, 121, 0, 0);
+
+                case 98: // NRPN LSB
+                case 99: // NRPN MSB
+                    rpn_number[channel] = 0x3fff;
+                    break;
+
                 case 7: // volume
                 case 10: // pan
                 case 11: // expression
@@ -242,7 +245,7 @@ void CCALL CWS_MidiMessageShort(uint32_t time, uint32_t message)
             break;
 
         case 14: // pitch bend
-            add_to_buffer(time, 6, channel, ((message >> 8) & 0x7f) | ((message << 7) & 0x3f80), 0, 0);
+            add_to_buffer(time, 6, channel, ((message >> 8) & 0x7f) | ((message >> 9) & 0x3f80), 0, 0);
             break;
 
         case 15:
@@ -250,8 +253,12 @@ void CCALL CWS_MidiMessageShort(uint32_t time, uint32_t message)
             {
                 for (channel = 0; channel < 16; channel++)
                 {
+                    rpn_number[channel] = 0x3fff;
+                    rpn_value[channel][0] = 0x100;
+                    rpn_value[channel][1] = 0x2000;
+                    rpn_value[channel][2] = 0x2000;
                     all_notes_off(time, channel);
-                    add_to_buffer(time, 5, channel, 121, 0, 0);
+                    add_to_buffer(time, 5, channel, 255, 0, 0);
                 }
             }
             break;
@@ -260,4 +267,3 @@ void CCALL CWS_MidiMessageShort(uint32_t time, uint32_t message)
             break;
     }
 }
-

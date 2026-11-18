@@ -761,9 +761,9 @@ static void usage(const char *progname)
         "%s - CrystalWave Software Synthesizer\n"
         "Usage: %s [OPTIONS]...\n"
         "  -w PATH  Datafile path (path to cwcwtsmp.dat)\n"
-        "  -f NUM   Frequency (8000-48000 Hz [default=22050])\n"
-        "  -p NUM   Polyphony (8-128 [default=32])\n"
-        "  -v NUM   Volume (0-1023 [default=752])\n"
+        "  -f NUM   Frequency (8000-48000 Hz [default=44100])\n"
+        "  -p NUM   Polyphony (8-128 [default=128])\n"
+        "  -v NUM   Volume (0-1023 [default=192])\n"
         "  -c NUM   Chorus effect (0=off [default], 1=on)\n"
         "  -r NUM   Reverb effect (0=off [default], 1=small room, 2=large room, 3=custom)\n"
         "  -m NUM   Mode (0 = original, 1 = enhanced [default])\n"
@@ -795,9 +795,9 @@ static void read_arguments(int argc, char *argv[])
     double k;
 
     // basic settings
-    frequency = 22050;
-    polyphony = 32;
-    volume = 752;
+    frequency = 44100;
+    polyphony = 128;
+    volume = 192;
     chorus_effect = 0;
     reverb_effect = 0;
     enhanced_mode = 1;
@@ -1613,4 +1613,3 @@ int main(int argc, char *argv[])
     stop_synth();
     return 0;
 }
-
